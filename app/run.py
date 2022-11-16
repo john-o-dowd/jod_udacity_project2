@@ -39,6 +39,10 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/')
 @app.route('/index')
 def index():
+    """
+    Initial landing page containing metrics visualising the data used to train the disaster classication model
+    :return:
+    """
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
@@ -99,9 +103,13 @@ def index():
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
 
-# web page that handles user query and displays model results
+
 @app.route('/go')
 def go():
+    """
+    # web page that handles user query and displays model results
+    :return:
+    """
     # save user input in query
     query = request.args.get('query', '')
 
@@ -118,6 +126,12 @@ def go():
 
 
 def main():
+    """
+    Main code entry point. Starts web app.
+    - The web app allows users to look at statistics of the training data used to train the disaster model.
+    - The app allows the used to query the model with messages which are then classified using the pretrained model.
+    :return:
+    """
     app.run(host='0.0.0.0', port=3100, debug=True)
 
 

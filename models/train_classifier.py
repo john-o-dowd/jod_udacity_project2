@@ -20,17 +20,26 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 # https://scikit-learn.org/stable/modules/generated/sklearn.multioutput.MultiOutputClassifier.html#sklearn-multioutput-multioutputclassifier
 def load_data(database_filepath):
+    """
+    Load a message data from database. Select a subset of the data (selected categories) and return them data
+    :param database_filepath:
+    :return: messages, message dataframe for selected categories, names of selected categories
+    """
     engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql_table('tempTable', engine)
     X = df.message.values
     # names = ["aid_related", "medical_help"]
     names = df.columns[5:]
     Y = df[names]
-    print("hi")
     return X, Y, names
 
 
 def tokenize(text):
+    """
+    Tokenizes text and returns cleaned version of tokens
+    :param text:
+    :return: clean tokens
+    """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -42,11 +51,13 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    create pipeline model to categorize messages
+    :return: model pipeline
+    """
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        # ('clf', RandomForestClassifier())
-        # ('clf', MultiOutputClassifier(LogisticRegression( max_iter=1000)))
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
     parameters = {
@@ -60,7 +71,14 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    # predict on test data
+    """
+    Genenerate statistics on the performance of the model based on its ability to categorize the test data
+    :param model:
+    :param X_test:
+    :param Y_test:
+    :param category_names:
+    :return:
+    """
     Y_pred = model.predict(X_test)
     accuracy = (Y_pred == Y_test).mean()
     print(f"Accuracy = {accuracy}")
@@ -72,10 +90,23 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+    store model in pickle file. This file is then loaded by the web app and used to categorize
+    user messages entered through the web interface
+    :param model:
+    :param model_filepath:
+    :return:
+    """
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
 def main():
+    """
+    Main code entry poing:
+    Build and save classifer model to categorize disaster messages. The model is trained based on user
+    supplied pre-categorized training messages
+    :return:
+    """
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
