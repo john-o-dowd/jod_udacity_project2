@@ -12,7 +12,7 @@
 
 3. Run your web app: `python run.py`
 
-4. Click the `PREVIEW` button to open the homepage
+4. App runs by default on localhost:3100
 
 
 ## Initial landing page fives statitics about the training dataset:
