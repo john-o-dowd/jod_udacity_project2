@@ -1,24 +1,22 @@
 import sys
 import pandas as pd
 from sqlalchemy import create_engine
-import nltk
 from sklearn.model_selection import train_test_split
 # nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
-import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.linear_model import LogisticRegression
 import pickle
-# from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import f1_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
 
-
-# https://scikit-learn.org/stable/modules/generated/sklearn.multioutput.MultiOutputClassifier.html#sklearn-multioutput-multioutputclassifier
+# https://scikit-learn.org/stable/modules/generated/
+# sklearn.multioutput.MultiOutputClassifier.html#sklearn-multioutput-multioutputclassifier
 def load_data(database_filepath):
     """
     Load a message data from database. Select a subset of the data (selected categories) and return them data
@@ -77,16 +75,26 @@ def evaluate_model(model, X_test, Y_test, category_names):
     :param X_test:
     :param Y_test:
     :param category_names:
-    :return:
+    :return: None
     """
     Y_pred = model.predict(X_test)
-    accuracy = (Y_pred == Y_test).mean()
-    print(f"Accuracy = {accuracy}")
-    print("hi")
+    # accuracy = (Y_pred == Y_test).mean()
+    # print(f"Accuracy = {accuracy}")
+    # calculate and print out performance metrics for model
+    for ix, col in enumerate(Y_test.columns):
+        f1 = f1_score(Y_test[col].values, Y_pred[:, ix], average='macro')
+        recall = recall_score(Y_test[col].values, Y_pred[:, ix], average='macro')
+        accuracy_col = (Y_test[col].values == Y_pred[:, ix]).mean()
+        precision = precision_score(Y_test[col].values, Y_pred[:, ix], average='macro')
+        print(f"Category : {col}, f1 = {f1:.2f}, recall = {recall:.2f}, accuracy = {accuracy_col:.2f}, precision = {precision:.2f}")
+
     # save all the prediction statistics for debug
-    with open('modelEvaluationDebug.pkl', 'wb') as f:  # Python 3: open(..., 'wb')
-        pickle.dump([model, X_test, Y_test, Y_pred], f)
-    print("hi")
+    debug = False
+
+    # if in debug save model and data used to test and predict it for additional model analysis
+    if debug:
+        with open('modelEvaluationDebug.pkl', 'wb') as f:  # Python 3: open(..., 'wb')
+            pickle.dump([model, X_test, Y_test, Y_pred], f)
 
 
 def save_model(model, model_filepath):
@@ -95,9 +103,9 @@ def save_model(model, model_filepath):
     user messages entered through the web interface
     :param model:
     :param model_filepath:
-    :return:
+    :return: None
     """
-    pickle.dump(model, open(model_filepath, 'wb'))
+    pickle.dump(model, open(model_filepath, 'wb'))  # save model in pickle file. This model is then loaded by we app
 
 
 def main():
@@ -105,7 +113,7 @@ def main():
     Main code entry poing:
     Build and save classifer model to categorize disaster messages. The model is trained based on user
     supplied pre-categorized training messages
-    :return:
+    :return: None
     """
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]

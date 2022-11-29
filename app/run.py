@@ -1,14 +1,11 @@
 import json
 import plotly
 import pandas as pd
-
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar, Pie
-# from sklearn.externals import joblib
 import joblib
 from sqlalchemy import create_engine
 
@@ -16,18 +13,21 @@ app = Flask(__name__)
 
 
 def tokenize(text):
+    """
+    Tokenizes text and returns cleaned version of tokens
+    :param text:
+    :return: clean tokens
+    """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
-
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
         clean_tokens.append(clean_tok)
-
     return clean_tokens
 
 
-# load data
+# load training data from sql database
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
 df = pd.read_sql_table('tempTable', engine)
 
@@ -44,14 +44,12 @@ def index():
     :return:
     """
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     no_weather_related = df[(df['weather_related'] == True) | (df['floods'] == True) | (df['storm'] == True) |
-       (df['other_weather'] == True)].shape[0]
-    no_not_weather_related = df.shape[0]-no_weather_related
+                            (df['other_weather'] == True)].shape[0]
+    no_not_weather_related = df.shape[0] - no_weather_related
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -75,7 +73,7 @@ def index():
             'data': [
                 Pie(
                     labels=genre_names,
-                    ids=['Residential', 'Non-Residential',  'Utility'],
+                    ids=['Residential', 'Non-Residential', 'Utility'],
                     values=genre_counts
                 )
             ]
@@ -101,7 +99,6 @@ def index():
 
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
-
 
 
 @app.route('/go')
