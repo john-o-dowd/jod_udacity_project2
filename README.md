@@ -1,5 +1,8 @@
 # Disaster Response Pipeline Project
 
+## Summary:
+In the event of a disaster large numbers of messages are received from the public and emergencey services. The ability to triage these messages and direct urgent messages to the relavant authority in a timely manner is critical to dealing with a disaster efficently. This code takes prelabled messages from previous disasters which have are used to train a model. This model is then used to label new messages in ongoing disaster situations which can then be used to pass the messages on to relevant autorities with the appropriate level of urgency.
+
 ## Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
