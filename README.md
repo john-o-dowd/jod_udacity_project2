@@ -26,5 +26,23 @@ In the event of a disaster large numbers of messages are received from the publi
 #### Breadown of messages based on presence of weather in message: 
 ![Alt text](/readme_images/WeatherRelatedMessages.png?raw=true "Title")
 
-
-
+## Files in repository:
+app
+| - template
+| |- master.html # main page of web app
+| |- go.html # classification result page of web app
+|- modelTest.py # script to analyse model perfomance
+|- run.py # Flask file that runs app
+data
+|- disaster_categories.csv # data to process
+|- disaster_messages.csv # data to process
+|- disaster_categories_simples.csv # subset of data to process for testing/debug 
+|- disaster_messages_simples.csv # subset of data to process for testing/debug
+|- process_data.py # load and clean csv data before save to sql database
+|- InsertDatabaseName.db # database to save clean data to
+models
+|- train_classifier.py # Build and save classifer model to categorize disaster messages. The model is trained based on user
+    supplied pre-categorized training messages
+|- classifier.pkl # saved model
+readme_images #images for readme
+README.md
